@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: loge-facile-niger
+    env: python
+    buildCommand: pip install -r requirements.txt && python database.py
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    disk:
+      name: uploads
+      mountPath: /opt/render/project/src/static/uploads
+      sizeGB: 1
