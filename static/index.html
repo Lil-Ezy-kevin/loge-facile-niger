@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Loge Facile Niger &mdash; Trouvez votre logement</title>
+<meta name="description" content="Service d'assistance a la recherche de logement securise au Niger. Rapide, fiable et humain."/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#1B3F7A;--blue-dk:#0D1F3C;--blue-md:#2A5298;--blue-lt:#EEF4FF;
+  --orange:#F47C20;--orange-lt:#FFA04D;--orange-dk:#C85E0A;
+  --warm:#FFF9F5;--sand:#F7F3EE;--white:#FFFFFF;
+  --text:#1A1A2E;--text-mid:#4A5568;--text-lt:#718096;
+  --border:rgba(0,0,0,0.08);--radius:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;line-height:1.6}
+
+/* ═══ LOADING SCREEN ═══════════════════════════════════ */
+#loading{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--blue-dk);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2rem;
+  transition:opacity 0.6s ease, visibility 0.6s ease;
+}
+#loading.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+.loading-logo{
+  width:120px;height:120px;
+  background:rgba(255,255,255,0.06);
+  border-radius:28px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,0.1);
+  animation:logoPulse 2s ease-in-out infinite;
+}
+.loading-logo img{width:90px;height:90px;object-fit:contain}
+.loading-brand{
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem;font-weight:900;color:var(--white);
+  letter-spacing:-0.02em;text-align:center;
+}
+.loading-brand span{color:var(--orange-lt)}
+.loading-sub{font-size:0.85rem;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase}
+.loading-bar-wrap{width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden}
+.loading-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--orange-lt));border-radius:100px;animation:loadBar 2s ease forwards}
+.loading-dots{display:flex;gap:0.5rem}
+.loading-dots span{
+  width:8px;height:8px;border-radius:50%;background:var(--orange-lt);opacity:0.3;
+  animation:dot 1.4s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2){animation-delay:0.2s}
+.loading-dots span:nth-child(3){animation-delay:0.4s}
+
+@keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(244,124,32,0.3)}50%{transform:scale(1.05);box-shadow:0 0 0 15px rgba(244,124,32,0)}}
+@keyframes loadBar{0%{width:0%}60%{width:80%}100%{width:100%}}
+@keyframes dot{0%,80%,100%{opacity:0.3;transform:scale(1)}40%{opacity:1;transform:scale(1.3)}}
+
+/* ═══ NAV ════════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:1rem 5%;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(27,63,122,0.07);
+  transition:box-shadow 0.3s;
+}
+nav.scrolled{box-shadow:0 2px 20px rgba(13,31,60,0.08)}
+.nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none}
+.nav-logo img{height:40px;object-fit:contain}
+.nav-logo-txt{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:var(--blue-dk)}
+.nav-logo-txt span{color:var(--orange)}
+.nav-menu{display:flex;gap:0.2rem;list-style:none;align-items:center}
+.nav-menu a{text-decoration:none;color:var(--text-mid);font-size:0.85rem;font-weight:500;padding:0.5rem 0.85rem;border-radius:10px;transition:all 0.2s}
+.nav-menu a:hover{background:var(--blue-lt);color:var(--blue)}
+.nav-menu .na-proprio{color:var(--orange)!important;border:1.5px solid rgba(244,124,32,0.25)}
+.nav-menu .na-proprio:hover{background:rgba(244,124,32,0.07)!important}
+.nav-menu .na-cta{background:var(--blue-dk)!important;color:var(--white)!important;border-radius:100px!important;padding:0.5rem 1.2rem!important}
+.nav-menu .na-cta:hover{background:var(--orange)!important}
+.nav-toggle{display:none;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text)}
+
+/* ═══ HERO ═══════════════════════════════════════════════ */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;align-items:center;
+  padding:8rem 5% 5rem;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#0A1628 0%,#0D1F3C 45%,#1B3F7A 100%);
+}
+.hero::after{
+  content:'';position:absolute;top:-200px;right:-200px;
+  width:700px;height:700px;
+  background:radial-gradient(ellipse,rgba(244,124,32,0.12) 0%,transparent 65%);
+  border-radius:50%;pointer-events:none;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-text{position:relative;z-index:2}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  background:rgba(244,124,32,0.15);border:1px solid rgba(244,124,32,0.3);
+  color:var(--orange-lt);padding:0.45rem 1rem;border-radius:100px;
+  font-size:0.76rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:1.8rem;
+  opacity:0;animation:fadeUp 0.6s 0.3s forwards;
+}
+.hero-pill::before{content:'\25CF';font-size:0.45rem;animation:blink 1.5s infinite}
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:900;line-height:1.15;
+  color:var(--white);margin-bottom:1.4rem;
+  opacity:0;animation:fadeUp 0.6s 0.45s forwards;
+}
+.hero h1 em{font-style:italic;color:var(--orange-lt)}
+.hero-desc{
+  font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.9;
+  max-width:480px;margin-bottom:2.5rem;font-weight:300;
+  opacity:0;animation:fadeUp 0.6s 0.6s forwards;
+}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s 0.75s forwards}
+.btn-orange{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:var(--orange);color:var(--white);
+  padding:0.95rem 2rem;border-radius:100px;
+  font-weight:600;font-size:0.92rem;text-decoration:none;
+  transition:all 0.3s;box-shadow:0 8px 30px rgba(244,124,32,0.35);
+}
+.btn-orange:hover{background:var(--orange-dk);transform:translateY(-3px);box-shadow:0 14px 40px rgba(244,124,32,0.4)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);
+  color:var(--white);padding:0.95rem 1.8rem;border-radius:100px;
+  font-weight:500;font-size:0.92rem;text-decoration:none;transition:all 0.3s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,0.15);transform:translateY(-3px)}
+
+/* Hero visual */
+.hero-right{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:flex-end;gap:1rem;
+  opacity:0;animation:fadeLeft 0.7s 0.5s forwards;
+}
+.hero-photo-wrap{
+  position:relative;width:360px;height:280px;border-radius:24px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,0.4);
+}
+.hero-photo-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s}
+.hero-photo-wrap:hover img{transform:scale(1.05)}
+.hero-photo-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(13,31,60,0.7) 0%,transparent 60%);
+}
+.hero-photo-caption{
+  position:absolute;bottom:1.2rem;left:1.2rem;right:1.2rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.hero-verified{
+  background:rgba(255,255,255,0.95);color:var(--orange);
+  font-size:0.68rem;font-weight:700;padding:0.3rem 0.75rem;
+  border-radius:100px;text-transform:uppercase;letter-spacing:0.05em;
+}
+.hero-prix{
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);
+}
+.hero-prix small{font-size:0.65rem;font-weight:400;opacity:0.7}
+
+.hero-stats{display:flex;gap:0.8rem;width:360px}
+.h-stat{
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);border-radius:16px;padding:1rem;text-align:center;
+}
+.h-stat-n{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--orange-lt);display:block}
+.h-stat-l{font-size:0.65rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.06em}
+
+/* ═══ SECTIONS ════════════════════════════════════════════ */
+section{padding:6rem 5%}
+.sec-lbl{display:inline-block;font-size:0.72rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:0.8rem}
+.sec-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;color:var(--text);line-height:1.2;margin-bottom:1rem}
+.sec-sub{font-size:1rem;color:var(--text-mid);max-width:540px;line-height:1.85;font-weight:300}
+
+/* ═══ HOW ═════════════════════════════════════════════════ */
+.how{background:var(--sand)}
+.how-head{margin-bottom:4rem}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.steps::before{content:'';position:absolute;top:2.4rem;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--orange),var(--blue-md));opacity:0.15}
+.step{position:relative;z-index:1;padding:0 1rem 2rem;text-align:center;opacity:0;transform:translateY(20px);transition:all 0.5s}
+.step.show{opacity:1;transform:translateY(0)}
+.step-ico{
+  width:4.8rem;height:4.8rem;border-radius:50%;background:var(--white);
+  border:2px solid rgba(244,124,32,0.15);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.1rem;font-size:1.7rem;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);transition:all 0.3s;
+}
+.step:hover .step-ico{background:var(--orange);border-color:var(--orange);box-shadow:0 8px 30px rgba(244,124,32,0.3);transform:scale(1.1)}
+.step h3{font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:0.4rem}
+.step p{font-size:0.78rem;color:var(--text-lt);line-height:1.65}
+
+/* ═══ LOGEMENTS ═══════════════════════════════════════════ */
+.logements{background:var(--white)}
+.log-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem}
+.filters{display:flex;gap:0.5rem;flex-wrap:wrap}
+.fl-btn{padding:0.45rem 1rem;border:1.5px solid var(--border);border-radius:100px;background:none;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all 0.2s}
+.fl-btn:hover{border-color:var(--blue);color:var(--blue)}
+.fl-btn.on{background:var(--blue-dk);color:var(--white);border-color:var(--blue-dk)}
+.log-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
+.log-card{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--white);box-shadow:0 2px 16px rgba(0,0,0,0.05);transition:all 0.3s;cursor:pointer}
+.log-card:hover{transform:translateY(-6px);box-shadow:0 16px 50px rgba(0,0,0,0.1);border-color:rgba(244,124,32,0.2)}
+.log-img{height:210px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--blue-md),var(--blue-dk));display:flex;align-items:center;justify-content:center;font-size:4rem}
+.log-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.log-card:hover .log-img img{transform:scale(1.06)}
+.log-badge{position:absolute;top:12px;left:12px;background:var(--orange);color:var(--white);font-size:0.65rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:100px;text-transform:uppercase;letter-spacing:0.05em}
+.log-badge-b{background:var(--blue-md)}
+.log-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.88);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
+.log-nav-btn:hover{background:var(--white);box-shadow:0 2px 12px rgba(0,0,0,0.15)}
+.lnb-l{left:8px}.lnb-r{right:8px}
+.log-ctr{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.5);color:#fff;font-size:0.6rem;padding:0.2rem 0.5rem;border-radius:100px}
+.log-body{padding:1.3rem}
+.log-type{font-size:0.68rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.3rem}
+.log-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.35rem;line-height:1.3}
+.log-loc{font-size:0.78rem;color:var(--text-lt);margin-bottom:0.8rem}
+.log-chips{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.9rem}
+.log-chip{background:var(--blue-lt);color:var(--blue-md);font-size:0.68rem;font-weight:500;padding:0.2rem 0.65rem;border-radius:100px}
+.log-foot{display:flex;align-items:center;justify-content:space-between}
+.log-price{font-size:1.15rem;font-weight:800;color:var(--orange)}
+.log-price small{font-size:0.67rem;color:var(--text-lt);font-weight:400}
+.log-btn{background:var(--blue-dk);color:var(--white);border:none;border-radius:100px;padding:0.5rem 1.1rem;font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.log-btn:hover{background:var(--orange)}
+.empty-st{text-align:center;padding:4rem 1rem;color:var(--text-lt)}
+.empty-st div{font-size:3.5rem;margin-bottom:1rem}
+
+/* ═══ MODAL ═══════════════════════════════════════════════ */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(10,20,40,0.7);z-index:1000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)}
+.modal-ov.open{display:flex}
+.modal{background:var(--white);border-radius:24px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,0.3)}
+.modal-gal{height:300px;position:relative;background:linear-gradient(135deg,var(--blue-md),var(--blue-dk));display:flex;align-items:center;justify-content:center;font-size:6rem;overflow:hidden;border-radius:24px 24px 0 0}
+.modal-gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.modal-close{position:absolute;top:1rem;right:1rem;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.9);border:none;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:all 0.2s}
+.modal-close:hover{background:var(--white);transform:scale(1.1)}
+.modal-gnav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.88);border:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;z-index:2;transition:all 0.2s}
+.modal-gnav:hover{background:var(--white)}
+.mgn-l{left:1rem}.mgn-r{right:1rem}
+.modal-body{padding:2rem}
+.modal-type{font-size:0.7rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.4rem}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:0.4rem}
+.modal-loc{font-size:0.88rem;color:var(--text-lt);margin-bottom:1.2rem}
+.modal-chips{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.3rem}
+.modal-chip{background:var(--blue-lt);color:var(--blue-md);font-size:0.78rem;font-weight:500;padding:0.3rem 0.9rem;border-radius:100px}
+.modal-price{font-size:2rem;font-weight:900;color:var(--orange);margin-bottom:1.3rem}
+.modal-price small{font-size:0.85rem;color:var(--text-lt);font-weight:400}
+.modal-desc{font-size:0.9rem;color:var(--text-mid);line-height:1.85;margin-bottom:1.8rem}
+.modal-cta{background:var(--sand);border-radius:16px;padding:1.3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.modal-cta p{font-size:0.78rem;color:var(--text-lt);margin-bottom:0.15rem}
+.modal-cta strong{font-size:0.95rem;color:var(--text);display:block}
+.modal-wa{display:inline-flex;align-items:center;gap:0.5rem;background:#25D366;color:var(--white);padding:0.75rem 1.5rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.85rem;transition:all 0.2s}
+.modal-wa:hover{background:#1fad55;transform:translateY(-2px)}
+
+/* ═══ PHOTO AMBIANCE ══════════════════════════════════════ */
+.ambiance{background:var(--warm);overflow:hidden}
+.ambiance-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:auto auto;gap:1rem;margin-top:3rem}
+.amb-card{border-radius:18px;overflow:hidden;position:relative}
+.amb-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s}
+.amb-card:hover img{transform:scale(1.07)}
+.amb-card:first-child{grid-row:1/3;height:420px}
+.amb-card:not(:first-child){height:200px}
+.amb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,31,60,0.6) 0%,transparent 50%)}
+.amb-label{position:absolute;bottom:1rem;left:1rem;color:var(--white);font-size:0.8rem;font-weight:600}
+
+/* ═══ TEMOIGNAGES ═════════════════════════════════════════ */
+.temos{background:var(--white)}
+.temos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+.temo{background:var(--sand);border-radius:var(--radius);padding:1.8rem;border:1px solid rgba(244,124,32,0.08);transition:all 0.3s}
+.temo:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.07);border-color:rgba(244,124,32,0.2)}
+.temo-stars{color:var(--orange);font-size:0.95rem;letter-spacing:0.1em;margin-bottom:1rem}
+.temo-quote{font-size:2rem;color:var(--orange);opacity:0.3;line-height:1;margin-bottom:0.5rem}
+.temo-txt{font-size:0.9rem;color:var(--text-mid);line-height:1.85;margin-bottom:1.3rem;font-style:italic}
+.temo-auth{display:flex;align-items:center;gap:0.8rem}
+.temo-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue-md),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);font-weight:700;flex-shrink:0}
+.temo-name{font-weight:700;font-size:0.88rem;color:var(--text)}
+.temo-role{font-size:0.72rem;color:var(--text-lt)}
+
+/* ═══ SERVICES ════════════════════════════════════════════ */
+.services{background:var(--sand)}
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;margin-top:3rem}
+.svc-photos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:0.8rem}
+.svc-photo{border-radius:16px;overflow:hidden}
+.svc-photo img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.svc-photo:hover img{transform:scale(1.06)}
+.svc-photo:first-child{grid-column:1/3;height:200px}
+.svc-photo:not(:first-child){height:150px}
+.svc-list{list-style:none}
+.svc-item{display:flex;gap:1.1rem;align-items:flex-start;padding:1.2rem 0;border-bottom:1px solid var(--border)}
+.svc-item:last-child{border-bottom:none}
+.svc-ico{width:3rem;height:3rem;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,rgba(244,124,32,0.1),rgba(244,124,32,0.04));border:1px solid rgba(244,124,32,0.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.svc-txt h4{font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:0.25rem}
+.svc-txt p{font-size:0.81rem;color:var(--text-mid);line-height:1.7}
+
+/* ═══ POURQUOI ════════════════════════════════════════════ */
+.why{background:var(--blue-dk)}
+.why .sec-h{color:var(--white)}
+.why .sec-sub{color:rgba(255,255,255,0.5)}
+.why .sec-lbl{color:var(--orange-lt)}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:3rem}
+.why-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius);padding:1.8rem;transition:all 0.3s}
+.why-card:hover{background:rgba(244,124,32,0.09);border-color:rgba(244,124,32,0.22);transform:translateY(-4px)}
+.why-ico{font-size:1.8rem;margin-bottom:1rem;display:block}
+.why-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:0.45rem}
+.why-card p{font-size:0.81rem;color:rgba(255,255,255,0.5);line-height:1.75}
+
+/* ═══ PROPRIETAIRES ═══════════════════════════════════════ */
+.proprio{background:linear-gradient(155deg,var(--blue) 0%,var(--blue-dk) 100%);padding:6rem 5%;position:relative;overflow:hidden}
+.proprio::before{content:'';position:absolute;top:-150px;right:-150px;width:500px;height:500px;background:radial-gradient(ellipse,rgba(244,124,32,0.1) 0%,transparent 70%);border-radius:50%}
+.proprio-in{position:relative;z-index:1}
+.proprio-pill{display:inline-flex;align-items:center;gap:0.6rem;background:rgba(244,124,32,0.15);border:1px solid rgba(244,124,32,0.28);color:var(--orange-lt);padding:0.45rem 1.1rem;border-radius:100px;font-size:0.74rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2.5rem}
+.proprio-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.proprio-avs{display:flex;flex-direction:column;gap:1.2rem;margin-top:2rem}
+.proprio-av{display:flex;gap:1rem;align-items:flex-start}
+.av-ic{width:2.8rem;height:2.8rem;border-radius:12px;flex-shrink:0;background:rgba(244,124,32,0.12);border:1px solid rgba(244,124,32,0.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.av-tx strong{display:block;color:var(--white);font-size:0.9rem;margin-bottom:0.2rem}
+.av-tx p{font-size:0.8rem;color:rgba(255,255,255,0.42);line-height:1.6}
+.proprio-form-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);border-radius:24px;padding:2.5rem;backdrop-filter:blur(12px)}
+.proprio-form-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:0.4rem}
+.proprio-form-box>p{font-size:0.83rem;color:rgba(255,255,255,0.42);margin-bottom:2rem}
+
+/* ═══ CONTACT ═════════════════════════════════════════════ */
+.contact{background:var(--warm)}
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.contact-cards{display:flex;flex-direction:column;gap:0.9rem;margin-top:2.5rem}
+.cc{display:flex;align-items:center;gap:1.1rem;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1rem 1.3rem;text-decoration:none;color:var(--text);transition:all 0.3s}
+.cc:hover{border-color:var(--orange);box-shadow:0 8px 30px rgba(244,124,32,0.1);transform:translateX(5px)}
+.cc-ico{width:2.8rem;height:2.8rem;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--orange),var(--orange-dk));display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.cc-txt small{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-lt);display:block;margin-bottom:0.1rem}
+.cc-txt strong{font-size:0.9rem;color:var(--text)}
+.contact-form-box{background:var(--white);border-radius:24px;padding:2.5rem;border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,0.05)}
+.contact-form-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.4rem}
+.contact-form-box>p{font-size:0.83rem;color:var(--text-lt);margin-bottom:2rem}
+
+/* ═══ FORMS ═══════════════════════════════════════════════ */
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:0.76rem;font-weight:600;color:var(--text);margin-bottom:0.38rem}
+.proprio-form-box .fg label{color:rgba(255,255,255,0.68)}
+.fg input,.fg select,.fg textarea{width:100%;padding:0.82rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--text);background:var(--sand);outline:none;transition:all 0.2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange);background:var(--white)}
+.proprio-form-box .fg input,
+.proprio-form-box .fg select,
+.proprio-form-box .fg textarea{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.11);color:var(--white)}
+.proprio-form-box .fg input::placeholder,.proprio-form-box .fg textarea::placeholder{color:rgba(255,255,255,0.28)}
+.proprio-form-box .fg select option{background:var(--blue-dk);color:var(--white)}
+.proprio-form-box .fg input:focus,.proprio-form-box .fg select:focus,.proprio-form-box .fg textarea:focus{border-color:var(--orange);background:rgba(255,255,255,0.1)}
+.fg textarea{resize:vertical;min-height:95px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem}
+.opt-tag{font-size:0.6rem;font-weight:600;color:rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);padding:0.1rem 0.5rem;border-radius:100px;margin-left:0.4rem;vertical-align:middle}
+.contact-form-box .opt-tag{color:rgba(0,0,0,0.3);background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.07)}
+.btn-submit{width:100%;padding:0.95rem;border:none;border-radius:100px;background:var(--orange);color:var(--white);font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.3s;margin-top:0.5rem}
+.btn-submit:hover{background:var(--orange-dk);transform:translateY(-2px)}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+
+/* Upload */
+.upzone{border:2px dashed rgba(255,255,255,0.18);border-radius:14px;padding:1.7rem;text-align:center;cursor:pointer;background:rgba(255,255,255,0.03);transition:all 0.3s}
+.upzone:hover,.upzone.drag{border-color:var(--orange);background:rgba(244,124,32,0.07)}
+.upzone-ico{font-size:1.8rem;margin-bottom:0.5rem;display:block}
+.upzone-txt{font-size:0.86rem;color:rgba(255,255,255,0.68);font-weight:500;margin-bottom:0.25rem}
+.upzone-hint{font-size:0.71rem;color:rgba(255,255,255,0.28)}
+.up-prev{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.7rem}
+.up-item{position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.13);background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center}
+.up-item img{width:100%;height:100%;object-fit:cover}
+.up-rm{position:absolute;top:2px;right:2px;width:17px;height:17px;background:rgba(0,0,0,0.72);color:#fff;border:none;border-radius:50%;font-size:0.58rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.up-info{font-size:0.73rem;color:rgba(255,255,255,0.38);margin-top:0.5rem;width:100%}
+
+/* ═══ TOAST ═══════════════════════════════════════════════ */
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:9998;padding:1rem 1.5rem;border-radius:14px;font-size:0.86rem;font-weight:600;color:var(--white);box-shadow:0 10px 40px rgba(0,0,0,0.2);transform:translateY(120px);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:#1a7a44}
+.toast.err{background:#c0392b}
+
+/* ═══ FOOTER ══════════════════════════════════════════════ */
+footer{background:var(--blue-dk);padding:4rem 5% 2rem}
+.ft-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:2rem}
+.ft-brand{}
+.ft-logo{display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem}
+.ft-logo img{height:42px;object-fit:contain}
+.ft-logo-txt{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white)}
+.ft-logo-txt span{color:var(--orange-lt)}
+.ft-brand p{font-size:0.83rem;color:rgba(255,255,255,0.35);line-height:1.7;max-width:240px}
+.ft-col h4{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:1rem}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
+.ft-col a{text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.83rem;transition:color 0.2s}
+.ft-col a:hover{color:var(--orange-lt)}
+.ft-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.ft-copy{font-size:0.74rem;color:rgba(255,255,255,0.2)}
+.ft-credit{font-size:0.74rem;color:rgba(255,255,255,0.2)}
+.ft-credit a{color:var(--orange-lt);text-decoration:none;font-weight:700}
+.ft-credit a:hover{color:var(--orange)}
+
+/* ═══ ANIMATIONS ══════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════ */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding-top:7rem;gap:3rem}
+  .hero-right{align-items:center}
+  .hero-photo-wrap,.hero-stats{width:100%;max-width:400px}
+  .svc-grid,.contact-wrap,.proprio-wrap{grid-template-columns:1fr;gap:3rem}
+  .why-grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:repeat(3,1fr)}
+  .steps::before{display:none}
+  .ambiance-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto}
+  .amb-card:first-child{grid-row:auto;grid-column:1/3;height:220px}
+  .amb-card:not(:first-child){height:160px}
+  .ft-grid{grid-template-columns:1fr 1fr}
+  .nav-menu{display:none}
+  .nav-toggle{display:block}
+}
+@media(max-width:600px){
+  .why-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .temos-grid{grid-template-columns:1fr}
+  .fr{grid-template-columns:1fr}
+  .ft-grid{grid-template-columns:1fr}
+  .ft-bottom{flex-direction:column;text-align:center}
+  .log-grid{grid-template-columns:1fr}
+  .svc-photos{grid-template-columns:1fr}
+  .svc-photo:first-child{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="loading-logo">
+    <img src="/static/logo.png" alt="Loge Facile Niger" onerror="this.style.display='none'" />
+  </div>
+  <div class="loading-brand">Loge<span>Facile</span> Niger</div>
+  <div class="loading-sub">Chargement en cours...</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL LOGEMENT -->
+<div class="modal-ov" id="mModal">
+  <div class="modal">
+    <div class="modal-gal" id="mGal">
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+      <button class="modal-gnav mgn-l" id="mPrev" onclick="mGalNav(-1)">&#8249;</button>
+      <button class="modal-gnav mgn-r" id="mNext" onclick="mGalNav(1)">&#8250;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-type" id="mType"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-loc" id="mLoc"></div>
+      <div class="modal-chips" id="mChips"></div>
+      <div class="modal-price" id="mPrice"></div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div class="modal-cta" id="mCta"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <img src="/static/logo.png" alt="Loge Facile Niger" onerror="this.style.display='none'" />
+    <span class="nav-logo-txt">Loge<span>Facile</span></span>
+  </a>
+  <ul class="nav-menu" id="navMenu">
+    <li><a href="#comment">Comment &ccedil;a marche</a></li>
+    <li><a href="#logements">Logements</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#pourquoi">Pourquoi nous</a></li>
+    <li><a href="#proprio" class="na-proprio">&#127968; Publier une maison</a></li>
+    <li><a href="#contact" class="na-cta">Nous contacter</a></li>
+  </ul>
+  <button class="nav-toggle" onclick="toggleNav()">&#9776;</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-text">
+    <div class="hero-pill">&#127475;&#127466; Agadez &middot; Niger</div>
+    <h1>Votre logement <em>id&eacute;al</em>,<br>sans stress ni surprises</h1>
+    <p class="hero-desc">Loge Facile Niger est une Solution destinée aux bailleurs pour faciliter la publication des leurs maisons et qui permet aux locataires de trouver des logements en toute simpliciter.</p>
+    <div class="hero-btns">
+      <a href="#logements" class="btn-orange">&#127968; Trouver un logements</a>
+      <a href="#contact" class="btn-ghost">Publier ma Maison &rarr;</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-photo-wrap">
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=700&q=80" alt="Logement Agadez" loading="lazy" />
+      <div class="hero-photo-overlay"></div>
+      <div class="hero-photo-caption">
+        <span class="hero-verified">&#10003; V&eacute;rifi&eacute;</span>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat"><span class="h-stat-n">200+</span><span class="h-stat-l">Logements</span></div>
+      <div class="h-stat"><span class="h-stat-n">98%</span><span class="h-stat-l">Satisfaits</span></div>
+      <div class="h-stat"><span class="h-stat-n">48h</span><span class="h-stat-l">D&eacute;lai moyen</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMENT CA MARCHE -->
+<section class="how" id="comment">
+  <div class="how-head">
+    <span class="sec-lbl">Processus simple</span>
+    <h2 class="sec-h">Comment &ccedil;a marche ?</h2>
+    <p class="sec-sub">En 5 &eacute;tapes claires, nous prenons tout en charge pour que vous trouviez votre logement en toute tranquillit&eacute;.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-ico">&#128221;</div><h3>Remplissez le formulaire</h3><p>D&eacute;crivez vos besoins : type, budget, quartier souhait&eacute;.</p></div>
+    <div class="step"><div class="step-ico">&#128269;</div><h3>Analyse de vos besoins</h3><p>Nous s&eacute;lectionnons des logements v&eacute;rifi&eacute;s avec photos.</p></div>
+    <div class="step"><div class="step-ico">&#127969;</div><h3>Visite organis&eacute;e</h3><p>Virtuelle ou sur place selon vos disponibilit&eacute;s.</p></div>
+    <div class="step"><div class="step-ico">&#129309;</div><h3>Mise en relation</h3><p>Contact direct avec le bailleur pour finaliser.</p></div>
+    <div class="step"><div class="step-ico">&#128273;</div><h3>Signature du bail</h3><p>Accompagnement jusqu&rsquo;&agrave; la signature finale.</p></div>
+  </div>
+</section>
+
+<!-- LOGEMENTS -->
+<section class="logements" id="logements">
+  <div class="log-head">
+    <div>
+      <span class="sec-lbl">Disponibles maintenant</span>
+      <h2 class="sec-h" style="margin-bottom:0">Nos logements</h2>
+    </div>
+    <div class="filters">
+      <button class="fl-btn on" onclick="doFilter('tous',this)">Tous</button>
+      <button class="fl-btn" onclick="doFilter('Studio',this)">Studios</button>
+      <button class="fl-btn" onclick="doFilter('Villa',this)">Villas</button>
+      <button class="fl-btn" onclick="doFilter('Appartement',this)">Appartements</button>
+      <button class="fl-btn" onclick="doFilter('Maison',this)">Maisons</button>
+    </div>
+  </div>
+  <div id="logGrid"><div class="empty-st"><div>&#128269;</div><p>Chargement...</p></div></div>
+</section>
+
+<!-- TEMOIGNAGES -->
+<section class="temos" id="temoignages">
+  <span class="sec-lbl">Ce qu&rsquo;ils disent</span>
+  <h2 class="sec-h">Nos clients t&eacute;moignent</h2>
+  <p class="sec-sub">Des familles et professionnels nous font confiance pour trouver leur logement au Niger.</p>
+  <div class="temos-grid">
+    <div class="temo">
+      <div class="temo-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="temo-quote">&ldquo;</div>
+      <p class="temo-txt">Gr&acirc;ce &agrave; Loge Facile Niger, j&rsquo;ai trouv&eacute; un appartement en moins de 48h apr&egrave;s mon affectation &agrave; Agadez. Service tr&egrave;s professionnel et rassurant.</p>
+      <div class="temo-auth">
+        <div class="temo-av">M</div>
+        <div><div class="temo-name">Moussa Alhassane</div><div class="temo-role">Enseignant affect&eacute; &agrave; Agadez</div></div>
+      </div>
+    </div>
+    <div class="temo">
+      <div class="temo-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="temo-quote">&ldquo;</div>
+      <p class="temo-txt">L&rsquo;&eacute;quipe a pris en charge toute la recherche et m&rsquo;a pr&eacute;sent&eacute; des options v&eacute;rifi&eacute;es. J&rsquo;ai sign&eacute; mon bail en toute s&eacute;r&eacute;nit&eacute;. Je recommande vivement !</p>
+      <div class="temo-auth">
+        <div class="temo-av">F</div>
+        <div><div class="temo-name">Fatima Ibrahim</div><div class="temo-role">Infirmi&egrave;re, Agadez</div></div>
+      </div>
+    </div>
+    <div class="temo">
+      <div class="temo-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="temo-quote">&ldquo;</div>
+      <p class="temo-txt">Tr&egrave;s r&eacute;actif, transparent et s&eacute;rieux. Ils m&rsquo;ont &eacute;vit&eacute; de nombreuses mauvaises surprises. Bravo &agrave; toute l&rsquo;&eacute;quipe de Loge Facile Niger.</p>
+      <div class="temo-auth">
+        <div class="temo-av">A</div>
+        <div><div class="temo-name">Adamou Salissou</div><div class="temo-role">Cadre administratif, Niger</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <span class="sec-lbl">Notre accompagnement</span>
+  <h2 class="sec-h">Un service <em style="font-style:italic;color:var(--orange)">complet</em> et personnalis&eacute;</h2>
+  <div class="svc-grid">
+    <div class="svc-photos">
+      <div class="svc-photo"><img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80" alt="Service" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div>
+      <div class="svc-photo"><img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80" alt="Interieur" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div>
+      <div class="svc-photo"><img src="https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&q=80" alt="Maison" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div>
+    </div>
+    <ul class="svc-list">
+      <li class="svc-item"><div class="svc-ico">&#128270;</div><div class="svc-txt"><h4>Recherche cibl&eacute;e</h4><p>Uniquement des logements v&eacute;rifi&eacute;s correspondant exactement &agrave; vos besoins et budget.</p></div></li>
+      <li class="svc-item"><div class="svc-ico">&#128247;</div><div class="svc-txt"><h4>Photos &amp; vid&eacute;os r&eacute;elles</h4><p>Chaque logement pr&eacute;sent&eacute; avec des m&eacute;dias authentiques et des d&eacute;tails complets.</p></div></li>
+      <li class="svc-item"><div class="svc-ico">&#128197;</div><div class="svc-txt"><h4>Visites organis&eacute;es</h4><p>Virtuelles ou sur place, &agrave; votre convenance, pour &eacute;viter tout d&eacute;placement inutile.</p></div></li>
+      <li class="svc-item"><div class="svc-ico">&#128196;</div><div class="svc-txt"><h4>Suivi jusqu&rsquo;au bail</h4><p>Nous vous guidons jusqu&rsquo;&agrave; la signature finale du contrat de location.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- POURQUOI NOUS -->
+<section class="why" id="pourquoi">
+  <span class="sec-lbl">Nos avantages</span>
+  <h2 class="sec-h">Pourquoi choisir Loge Facile Niger ?</h2>
+  <p class="sec-sub">Gagnez du temps, &eacute;vitez les surprises et profitez d&rsquo;un service s&eacute;curis&eacute;, transparent et professionnel.</p>
+  <div class="why-grid">
+    <div class="why-card"><span class="why-ico">&#9989;</span><h3>Logements v&eacute;rifi&eacute;s</h3><p>Chaque logement inspect&eacute; avant d&rsquo;&ecirc;tre propos&eacute;. Z&eacute;ro mauvaise surprise &agrave; l&rsquo;arriv&eacute;e.</p></div>
+    <div class="why-card"><span class="why-ico">&#9889;</span><h3>R&eacute;ponse en 48h</h3><p>Notre &eacute;quipe r&eacute;active vous propose des offres adapt&eacute;es rapidement.</p></div>
+    <div class="why-card"><span class="why-ico">&#128274;</span><h3>Service s&eacute;curis&eacute;</h3><p>Chaque &eacute;tape s&eacute;curis&eacute;e pour prot&eacute;ger vos int&eacute;r&ecirc;ts et &eacute;viter toute arnaque.</p></div>
+    <div class="why-card"><span class="why-ico">&#128172;</span><h3>Accompagnement humain</h3><p>Une vraie &eacute;quipe &agrave; votre &eacute;coute, disponible sur WhatsApp ou email.</p></div>
+    <div class="why-card"><span class="why-ico">&#128176;</span><h3>Tous budgets</h3><p>Studios, appartements, villas &mdash; des logements pour tous les profils.</p></div>
+    <div class="why-card"><span class="why-ico">&#127758;</span><h3>Ancrage local</h3><p>Expertise parfaite d&rsquo;Agadez et de ses quartiers. Votre meilleur atout.</p></div>
+  </div>
+</section>
+
+<!-- PROPRIETAIRES -->
+<section class="proprio" id="proprio">
+  <div class="proprio-in">
+    <div class="proprio-pill">&#127968; Vous avez un logement &agrave; louer ? Signalez-le nous !</div>
+    <div class="proprio-wrap">
+      <div>
+        <span class="sec-lbl" style="color:var(--orange-lt)">Vous &ecirc;tes propri&eacute;taire ?</span>
+        <h2 class="sec-h" style="color:#fff;margin-bottom:1rem">Proposez votre bien<br><em style="color:var(--orange-lt);font-style:italic">&agrave; notre &eacute;quipe</em></h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:0.95rem;line-height:1.85;font-weight:300;max-width:440px;margin-bottom:2rem">
+          Soumettez votre logement. Nous v&eacute;rifions, pr&eacute;parons une belle fiche et le publions aupr&egrave;s de nos clients s&eacute;rieux. Gratuit et sans engagement.
+        </p>
+        <div class="proprio-avs">
+          <div class="proprio-av"><span class="av-ic">&#128229;</span><div class="av-tx"><strong>Soumission facile</strong><p>Remplissez le formulaire, notre &eacute;quipe re&ccedil;oit directement votre proposition.</p></div></div>
+          <div class="proprio-av"><span class="av-ic">&#128269;</span><div class="av-tx"><strong>V&eacute;rification &amp; validation</strong><p>Examen et pr&eacute;paration d&rsquo;une fiche de qualit&eacute; professionnelle.</p></div></div>
+          <div class="proprio-av"><span class="av-ic">&#128640;</span><div class="av-tx"><strong>Publication pour vous</strong><p>Propos&eacute; &agrave; nos clients actifs en recherche de logement.</p></div></div>
+          <div class="proprio-av"><span class="av-ic">&#127873;</span><div class="av-tx"><strong>100% gratuit</strong><p>Aucun frais pour soumettre votre logement &agrave; notre &eacute;quipe.</p></div></div>
+        </div>
+      </div>
+      <div class="proprio-form-box">
+        <h3>Soumettre mon logement</h3>
+        <p>Notre &eacute;quipe examine et publie votre bien rapidement.</p>
+        <form id="fProprio">
+          <div class="fr">
+            <div class="fg"><label>Pr&eacute;nom &amp; Nom *</label><input type="text" name="nom" placeholder="Ex: Ibrahim Moussa" required /></div>
+            <div class="fg"><label>T&eacute;l&eacute;phone *</label><input type="tel" name="telephone" placeholder="+227 XX XX XX XX" required /></div>
+          </div>
+          <div class="fg"><label>Type de logement <span class="opt-tag">facultatif</span></label>
+            <select name="type_logement">
+              <option value="">S&eacute;lectionner...</option>
+              <option>Studio</option><option>Appartement 2 pi&egrave;ces</option><option>Appartement 3 pi&egrave;ces</option>
+              <option>Villa</option><option>Maison enti&egrave;re</option><option>Chambre individuelle</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="fr">
+            <div class="fg"><label>Quartier <span class="opt-tag">facultatif</span></label><input type="text" name="quartier" placeholder="Ex: Abalama" /></div>
+            <div class="fg"><label>Loyer (FCFA) <span class="opt-tag">facultatif</span></label><input type="text" name="loyer" placeholder="Ex: 150 000" /></div>
+          </div>
+          <div class="fg"><label>Description <span class="opt-tag">facultatif</span></label><textarea name="description" placeholder="Pi&egrave;ces, &eacute;tat, &eacute;quipements..."></textarea></div>
+          <div class="fg">
+            <label>Photos &amp; Vid&eacute;os <span class="opt-tag">facultatif</span></label>
+            <div class="upzone" id="upZone" onclick="document.getElementById('upInput').click()">
+              <span class="upzone-ico">&#128247;</span>
+              <div class="upzone-txt">Cliquez ou glissez vos fichiers ici</div>
+              <div class="upzone-hint">JPG, PNG, MP4, MOV &mdash; 10 fichiers max</div>
+              <input type="file" id="upInput" accept="image/*,video/*" multiple style="display:none" onchange="addFiles(this)" />
+            </div>
+            <div class="up-prev" id="upPrev"></div>
+          </div>
+          <button type="submit" class="btn-submit" id="btnProprio">Soumettre mon logement &rarr;</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-wrap">
+    <div>
+      <span class="sec-lbl">Nous joindre</span>
+      <h2 class="sec-h">D&eacute;posez votre demande<br>d&egrave;s maintenant</h2>
+      <p class="sec-sub">Notre &eacute;quipe vous contacte rapidement avec des propositions adapt&eacute;es &agrave; vos besoins.</p>
+      <div class="contact-cards">
+        <a href="https://wa.me/22786160620" target="_blank" class="cc">
+          <div class="cc-ico">&#128222;</div>
+          <div class="cc-txt"><small>WhatsApp</small><strong>+227 86 16 06 20</strong></div>
+        </a>
+        <a href="mailto:logefacile.niger@gmail.com" class="cc">
+          <div class="cc-ico">&#128231;</div>
+          <div class="cc-txt"><small>Email</small><strong>logefacile.niger@gmail.com</strong></div>
+        </a>
+        <a href="https://maps.google.com/?q=16.951639,7.973465" target="_blank" class="cc">
+          <div class="cc-ico">&#128205;</div>
+          <div class="cc-txt"><small>Localisation &mdash; Voir sur Google Maps &#8599;</small><strong>Agadez, Niger</strong></div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form-box">
+      <h3>Formulaire de demande</h3>
+      <p>D&eacute;crivez votre besoin, nous vous recontactons rapidement.</p>
+      <form id="fDemande">
+        <div class="fr">
+          <div class="fg"><label>Pr&eacute;nom &amp; Nom *</label><input type="text" name="nom" placeholder="Ex: Moussa Alhassane" required /></div>
+          <div class="fg"><label>T&eacute;l&eacute;phone *</label><input type="tel" name="telephone" placeholder="+227 XX XX XX XX" required /></div>
+        </div>
+        <div class="fg"><label>Email <span class="opt-tag">facultatif</span></label><input type="email" name="email" placeholder="votre@email.com" /></div>
+        <div class="fr">
+          <div class="fg"><label>Type de logement <span class="opt-tag">facultatif</span></label>
+            <select name="type_logement">
+              <option value="">S&eacute;lectionner...</option>
+              <option>Studio</option><option>Appartement 2 pi&egrave;ces</option><option>Appartement 3 pi&egrave;ces</option>
+              <option>Villa</option><option>Maison</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="fg"><label>Budget (FCFA) <span class="opt-tag">facultatif</span></label>
+            <select name="budget">
+              <option value="">S&eacute;lectionner...</option>
+              <option>Moins de 50 000</option><option>50 000 - 100 000</option>
+              <option>100 000 - 200 000</option><option>200 000 - 400 000</option><option>Plus de 400 000</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Quartier / Pr&eacute;cisions <span class="opt-tag">facultatif</span></label><textarea name="precisions" placeholder="Ex: Quartier Abalama, meubl&eacute;..."></textarea></div>
+        <button type="submit" class="btn-submit" id="btnDemande">Envoyer ma demande &rarr;</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-grid">
+    <div class="ft-brand">
+      <div class="ft-logo">
+        <img src="/static/logo.png" alt="Logo" onerror="this.style.display='none'" />
+        <span class="ft-logo-txt">Loge<span>Facile</span> Niger</span>
+      </div>
+      <p>Votre logement, simplement. Un service humain, rapide et s&eacute;curis&eacute; pour toute la famille au Niger.</p>
+    </div>
+    <div class="ft-col">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#comment">Comment &ccedil;a marche</a></li>
+        <li><a href="#logements">Logements disponibles</a></li>
+        <li><a href="#services">Nos services</a></li>
+        <li><a href="#pourquoi">Pourquoi nous</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="https://wa.me/22786160620">&#128222; +227 86 16 06 20</a></li>
+        <li><a href="mailto:logefacile.niger@gmail.com">&#128231; logefacile.niger@gmail.com</a></li>
+        <li><a href="https://maps.google.com/?q=16.951639,7.973465" target="_blank">&#128205; Agadez, Niger</a></li>
+        <li><a href="#proprio">&#127968; Proposer un logement</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <div class="ft-copy">&copy; 2025 Loge Facile Niger &mdash; Tous droits r&eacute;serv&eacute;s</div>
+    <div class="ft-credit">Con&ccedil;u &amp; d&eacute;velopp&eacute; par <a href="#" target="_blank">EZ&rsquo;er-DeV</a> &mdash; D&eacute;veloppement Web &amp; Mobile</div>
+  </div>
+</footer>
+
+<script>
+// ── LOADING ──────────────────────────────────────────
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loading').classList.add('hidden');
+  }, 2200);
+});
+
+// ── NAV ──────────────────────────────────────────────
+window.addEventListener('scroll', function() {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+function toggleNav() {
+  var m = document.getElementById('navMenu');
+  if (m.style.display === 'flex') {
+    m.style.display = 'none';
+  } else {
+    m.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:1rem 5%;box-shadow:0 10px 30px rgba(0,0,0,0.1);gap:0.3rem;z-index:100';
+  }
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); document.getElementById('navMenu').style.display = ''; }
+  });
+});
+
+// ── SCROLL REVEAL ────────────────────────────────────
+var rv = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e, i) {
+    if (e.isIntersecting) setTimeout(function() { e.target.classList.add('show'); }, i * 100);
+  });
+}, {threshold:0.1});
+document.querySelectorAll('.step').forEach(function(el) { rv.observe(el); });
+
+// ── TOAST ────────────────────────────────────────────
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(function() { t.className = 'toast'; }, 4000);
+}
+
+// ── LOGEMENTS ────────────────────────────────────────
+var allLogs = [], activeFilter = 'tous', cardImgIdx = {};
+
+function loadLogements() {
+  fetch('/api/logements')
+    .then(function(r) { return r.json(); })
+    .then(function(data) { allLogs = data; renderLogs(data); })
+    .catch(function() {
+      document.getElementById('logGrid').innerHTML = '<div class="empty-st"><div>&#127968;</div><p>Impossible de charger les logements.</p></div>';
+    });
+}
+
+function doFilter(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.fl-btn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  var list = type === 'tous' ? allLogs : allLogs.filter(function(l) { return l.type_logement && l.type_logement.toLowerCase().indexOf(type.toLowerCase()) >= 0; });
+  renderLogs(list);
+}
+
+function renderLogs(list) {
+  var c = document.getElementById('logGrid');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty-st"><div>&#127968;</div><p>Aucun logement disponible pour le moment.</p></div>';
+    return;
+  }
+  c.innerHTML = '<div class="log-grid">' + list.map(function(l, i) { return makeCard(l, i); }).join('') + '</div>';
+}
+
+function makeCard(l, i) {
+  var photos = l.photos || [];
+  var imgHtml = photos.length
+    ? '<img src="' + photos[0].url + '" alt="photo" id="ci' + i + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />'
+    : '&#127968;';
+  var navHtml = photos.length > 1
+    ? '<button class="log-nav-btn lnb-l" onclick="event.stopPropagation();navCard(' + i + ',-1)">&#8249;</button><button class="log-nav-btn lnb-r" onclick="event.stopPropagation();navCard(' + i + ',1)">&#8250;</button><div class="log-ctr" id="cc' + i + '">1/' + photos.length + '</div>'
+    : '';
+  var badge = l.meuble ? '<div class="log-badge log-badge-b">Meubl\u00e9</div>' : '<div class="log-badge">Disponible</div>';
+  var chips = [l.nb_pieces ? l.nb_pieces + ' pi\u00e8ces' : '', l.surface ? l.surface + ' m\u00b2' : ''].filter(Boolean).map(function(c) { return '<span class="log-chip">' + c + '</span>'; }).join('');
+  var prix = l.loyer ? Number(l.loyer).toLocaleString('fr') + ' FCFA' : 'Prix sur demande';
+  var idx = allLogs.indexOf(l);
+  return '<div class="log-card" onclick="openModal(' + idx + ')">'
+    + '<div class="log-img" style="position:relative">' + imgHtml + navHtml + badge + '</div>'
+    + '<div class="log-body">'
+    + '<div class="log-type">' + (l.type_logement || 'Logement') + '</div>'
+    + '<div class="log-title">' + l.titre + '</div>'
+    + '<div class="log-loc">&#128205; ' + (l.quartier || '') + (l.ville ? ', ' + l.ville : '') + '</div>'
+    + (chips ? '<div class="log-chips">' + chips + '</div>' : '')
+    + '<div class="log-foot"><div class="log-price">' + prix + ' <small>/mois</small></div>'
+    + '<button class="log-btn" onclick="event.stopPropagation();openModal(' + idx + ')">D\u00e9tails &rarr;</button></div>'
+    + '</div></div>';
+}
+
+function navCard(i, d) {
+  var list = activeFilter === 'tous' ? allLogs : allLogs.filter(function(l) { return l.type_logement && l.type_logement.toLowerCase().indexOf(activeFilter.toLowerCase()) >= 0; });
+  var l = list[i]; if (!l || !l.photos.length) return;
+  cardImgIdx[i] = ((cardImgIdx[i] || 0) + d + l.photos.length) % l.photos.length;
+  var img = document.getElementById('ci' + i);
+  if (img) img.src = l.photos[cardImgIdx[i]].url;
+  var ctr = document.getElementById('cc' + i);
+  if (ctr) ctr.textContent = (cardImgIdx[i] + 1) + '/' + l.photos.length;
+}
+
+// ── MODAL ────────────────────────────────────────────
+var mPhotos = [], mPhotoIdx = 0;
+
+function openModal(idx) {
+  var l = allLogs[idx]; if (!l) return;
+  mPhotos = l.photos || []; mPhotoIdx = 0;
+  refreshModalGal();
+  document.getElementById('mType').textContent = l.type_logement || 'Logement';
+  document.getElementById('mTitle').textContent = l.titre;
+  document.getElementById('mLoc').innerHTML = '&#128205; ' + (l.quartier || '') + (l.ville ? ', ' + l.ville : '');
+  var chips = [l.nb_pieces ? l.nb_pieces + ' pi\u00e8ces' : '', l.surface ? l.surface + ' m\u00b2' : '', l.meuble ? 'Meubl\u00e9' : ''].filter(Boolean);
+  document.getElementById('mChips').innerHTML = chips.map(function(c) { return '<span class="modal-chip">' + c + '</span>'; }).join('');
+  document.getElementById('mPrice').innerHTML = l.loyer ? Number(l.loyer).toLocaleString('fr') + ' FCFA <small>/mois</small>' : 'Prix sur demande';
+  document.getElementById('mDesc').textContent = l.description || 'Aucune description disponible.';
+  var tel = (l.telephone_bailleur || '+22786160620').replace(/[^0-9]/g, '');
+  document.getElementById('mCta').innerHTML = '<div><p style="font-size:0.78rem;color:var(--text-lt);margin-bottom:0.15rem">Contact pour visiter</p><strong>' + (l.contact_bailleur || 'Loge Facile Niger') + '</strong></div><a href="https://wa.me/' + tel + '" target="_blank" class="modal-wa">&#128222; WhatsApp</a>';
+  document.getElementById('mModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function refreshModalGal() {
+  var g = document.getElementById('mGal');
+  var old = g.querySelector('img');
+  if (old) old.remove();
+  var ph = g.querySelector('.gph');
+  if (ph) ph.remove();
+  if (mPhotos.length && mPhotos[mPhotoIdx] && mPhotos[mPhotoIdx].type === 'image') {
+    var img = document.createElement('img');
+    img.src = mPhotos[mPhotoIdx].url;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+    g.appendChild(img);
+  } else if (!mPhotos.length) {
+    var d = document.createElement('div'); d.className = 'gph'; d.style.fontSize = '5rem'; d.textContent = '\uD83C\uDFE0'; g.appendChild(d);
+  }
+  document.getElementById('mPrev').style.display = mPhotos.length > 1 ? 'flex' : 'none';
+  document.getElementById('mNext').style.display = mPhotos.length > 1 ? 'flex' : 'none';
+}
+
+function mGalNav(d) { mPhotoIdx = (mPhotoIdx + d + mPhotos.length) % mPhotos.length; refreshModalGal(); }
+function closeModal() { document.getElementById('mModal').classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('mModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+loadLogements();
+
+// ── UPLOAD ───────────────────────────────────────────
+var selFiles = [];
+function addFiles(inp) {
+  selFiles = selFiles.concat(Array.from(inp.files || [])).slice(0, 10);
+  drawPrev(); inp.value = '';
+}
+function rmFile(i) { selFiles.splice(i, 1); drawPrev(); }
+function drawPrev() {
+  var c = document.getElementById('upPrev'); c.innerHTML = '';
+  selFiles.forEach(function(f, i) {
+    var d = document.createElement('div'); d.className = 'up-item';
+    if (f.type.indexOf('image') === 0) {
+      var img = document.createElement('img'); img.src = URL.createObjectURL(f); d.appendChild(img);
+    } else {
+      d.innerHTML = '<span style="font-size:1.4rem">\uD83C\uDFAC</span>';
+    }
+    var b = document.createElement('button'); b.className = 'up-rm'; b.type = 'button'; b.textContent = '\u00D7';
+    b.onclick = function() { rmFile(i); }; d.appendChild(b); c.appendChild(d);
+  });
+  if (selFiles.length) {
+    var info = document.createElement('div'); info.className = 'up-info';
+    info.textContent = selFiles.length + ' fichier(s) \u2014 ' + (10 - selFiles.length) + ' restant(s)'; c.appendChild(info);
+  }
+}
+var uz = document.getElementById('upZone');
+if (uz) {
+  uz.addEventListener('dragover', function(e) { e.preventDefault(); uz.classList.add('drag'); });
+  uz.addEventListener('dragleave', function() { uz.classList.remove('drag'); });
+  uz.addEventListener('drop', function(e) { e.preventDefault(); uz.classList.remove('drag'); addFiles({files:e.dataTransfer.files,value:''}); });
+}
+
+// ── FORMULAIRES ──────────────────────────────────────
+document.getElementById('fDemande').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('btnDemande');
+  btn.disabled = true; btn.textContent = 'Envoi en cours...';
+  var data = {};
+  new FormData(this).forEach(function(v, k) { data[k] = v; });
+  fetch('/api/demande', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (json.success) { showToast('\u2713 Demande envoy\u00e9e ! Nous vous contactons rapidement.', 'ok'); document.getElementById('fDemande').reset(); }
+      else showToast(json.message || 'Erreur.', 'err');
+    })
+    .catch(function() { showToast('Erreur de connexion.', 'err'); })
+    .finally(function() { btn.disabled = false; btn.textContent = 'Envoyer ma demande \u2192'; });
+});
+
+document.getElementById('fProprio').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('btnProprio');
+  btn.disabled = true; btn.textContent = 'Envoi en cours...';
+  var fd = new FormData(this);
+  selFiles.forEach(function(f) { fd.append('fichiers', f); });
+  fetch('/api/proposition', {method:'POST', body:fd})
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (json.success) { showToast('\u2713 Proposition soumise ! Notre \u00e9quipe l\'examine bient\u00f4t.', 'ok'); document.getElementById('fProprio').reset(); selFiles = []; drawPrev(); }
+      else showToast(json.message || 'Erreur.', 'err');
+    })
+    .catch(function() { showToast('Erreur de connexion.', 'err'); })
+    .finally(function() { btn.disabled = false; btn.textContent = 'Soumettre mon logement \u2192'; });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - Loge Facile Niger</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#F4F8FF;color:#0D1B3E}
+nav{background:#0D1B3E;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-size:1.2rem;font-weight:800;color:#fff}.nav-logo span{color:#F9A05A}
+.nav-links{display:flex;gap:1rem;align-items:center}
+.nav-links a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;padding:0.4rem 0.8rem;border-radius:8px;transition:all 0.2s}
+.nav-links a:hover,.nav-links a.active{background:rgba(244,124,32,0.15);color:#F9A05A}
+.nav-links .logout{border:1px solid rgba(244,124,32,0.3);color:#F9A05A}
+.container{max-width:1300px;margin:0 auto;padding:2rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.stat{background:#fff;border-radius:14px;padding:1.3rem;box-shadow:0 2px 12px rgba(13,27,62,0.06)}
+.stat-num{font-size:2rem;font-weight:800;color:#F47C20}.stat-lbl{font-size:0.78rem;color:#999;margin-top:0.2rem}
+.tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:2px solid #e8eef8;padding-bottom:0}
+.tab{padding:0.7rem 1.4rem;font-size:0.88rem;font-weight:600;cursor:pointer;border-radius:10px 10px 0 0;color:#888;border:none;background:none;transition:all 0.2s}
+.tab.active{background:#fff;color:#0D1B3E;box-shadow:0 -2px 10px rgba(13,27,62,0.06);border-bottom:2px solid #fff;margin-bottom:-2px}
+.tab-content{display:none}.tab-content.active{display:block}
+.section{background:#fff;border-radius:16px;padding:1.8rem;box-shadow:0 2px 12px rgba(13,27,62,0.06)}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.section-head h2{font-size:1.15rem;font-weight:700}
+.btn{padding:0.6rem 1.2rem;border:none;border-radius:100px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem}
+.btn-orange{background:#F47C20;color:#fff}.btn-orange:hover{background:#D4600A}
+.btn-blue{background:#2A5298;color:#fff}.btn-blue:hover{background:#1A3A6B}
+.btn-green{background:#e8f5e9;color:#2e7d32}.btn-green:hover{background:#2e7d32;color:#fff}
+.btn-red{background:#fdecea;color:#c62828}.btn-red:hover{background:#c62828;color:#fff}
+.btn-gray{background:#f0f0f0;color:#555}.btn-gray:hover{background:#ddd}
+.btn-sm{padding:0.3rem 0.75rem;font-size:0.75rem}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:0.65rem 0.9rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#aaa;border-bottom:2px solid #f0f0f0}
+td{padding:0.8rem 0.9rem;font-size:0.85rem;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafcff}
+.badge{display:inline-block;padding:0.22rem 0.7rem;border-radius:100px;font-size:0.7rem;font-weight:600}
+.b-nouveau{background:#e3f2fd;color:#1565c0}
+.b-en_attente{background:#fff3e0;color:#e65100}
+.b-traite{background:#e8f5e9;color:#2e7d32}
+.b-publie{background:#f3e5f5;color:#6a1b9a}
+.b-dispo{background:#e8f5e9;color:#2e7d32}
+.b-indispo{background:#fdecea;color:#c62828}
+.actions{display:flex;gap:0.4rem;flex-wrap:wrap}
+.tel{color:#F47C20;font-weight:600}
+.empty{text-align:center;padding:3rem 1rem;color:#bbb;font-size:0.9rem}
+.logement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}
+.logement-card{background:#fff;border:1px solid #eef;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(13,27,62,0.06)}
+.logement-img{height:160px;background:linear-gradient(135deg,#1A3A6B,#2A5298);display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;overflow:hidden}
+.logement-img img{width:100%;height:100%;object-fit:cover}
+.logement-indispo-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.9rem}
+.logement-body{padding:1rem}
+.logement-body h4{font-size:0.95rem;font-weight:700;margin-bottom:0.3rem}
+.logement-meta{font-size:0.78rem;color:#888;margin-bottom:0.5rem}
+.logement-prix{font-size:1.1rem;font-weight:700;color:#F47C20;margin-bottom:0.8rem}
+.logement-actions{display:flex;gap:0.4rem;flex-wrap:wrap}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,27,62,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.2)}
+.modal h3{font-size:1.2rem;font-weight:700;margin-bottom:1.5rem;color:#0D1B3E}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:0.78rem;font-weight:600;color:#555;margin-bottom:0.3rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem 0.9rem;border:1.5px solid #ddd;border-radius:10px;font-size:0.88rem;outline:none;transition:border-color 0.2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#F47C20}
+.form-group textarea{min-height:80px;resize:vertical}
+.checkbox-row{display:flex;align-items:center;gap:0.5rem;font-size:0.88rem;color:#555}
+.checkbox-row input[type=checkbox]{width:auto;margin:0}
+.modal-footer{display:flex;gap:0.8rem;justify-content:flex-end;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid #f0f0f0}
+.upload-zone-admin{border:2px dashed #ddd;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s}
+.upload-zone-admin:hover{border-color:#F47C20;background:#fff8f3}
+.upload-preview-admin{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.8rem}
+.prev-item{position:relative;width:65px;height:65px;border-radius:8px;overflow:hidden;border:1px solid #eee}
+.prev-item img{width:100%;height:100%;object-fit:cover}
+.prev-item .rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vid-prev{display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#f5f5f5;width:100%;height:100%}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}.logement-grid{grid-template-columns:1fr}}
+</style></head><body>
+<nav>
+  <div class="nav-logo">Loge<span>Facile</span> Admin</div>
+  <div class="nav-links">
+    <a href="/admin/dashboard" class="active">Dashboard</a>
+    <a href="/" target="_blank">Voir le site</a>
+    <a href="/admin/logout" class="logout">Deconnexion</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="stat-num">{{ nb_demandes }}</div><div class="stat-lbl">Demandes</div></div>
+    <div class="stat"><div class="stat-num">{{ nb_nouvelles }}</div><div class="stat-lbl">Nouvelles</div></div>
+    <div class="stat"><div class="stat-num">{{ nb_propositions }}</div><div class="stat-lbl">Propositions</div></div>
+    <div class="stat"><div class="stat-num">{{ nb_attente }}</div><div class="stat-lbl">En attente</div></div>
+    <div class="stat"><div class="stat-num">{{ nb_logements }}</div><div class="stat-lbl">Logements publies</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('logements')">&#127968; Logements publies</button>
+    <button class="tab" onclick="showTab('demandes')">&#128203; Demandes</button>
+    <button class="tab" onclick="showTab('propositions')">&#128229; Propositions</button>
+  </div>
+
+  <!-- TAB LOGEMENTS -->
+  <div id="tab-logements" class="tab-content active">
+    <div class="section">
+      <div class="section-head">
+        <h2>Logements visibles par les visiteurs</h2>
+        <button class="btn btn-orange" onclick="ouvrirModalNouveauLogement()">+ Publier un logement</button>
+      </div>
+      {% if logements %}
+      <div class="logement-grid">
+        {% for l in logements %}
+        <div class="logement-card">
+          <div class="logement-img">
+            {% if l['photo_principale'] %}
+            <img src="/static/uploads/{{ l['photo_principale'] }}" alt="photo" />
+            {% else %}&#127968;{% endif %}
+            {% if not l['disponible'] %}<div class="logement-indispo-overlay">INDISPONIBLE</div>{% endif %}
+          </div>
+          <div class="logement-body">
+            <h4>{{ l['titre'] }}</h4>
+            <div class="logement-meta">
+              {{ l['type_logement'] or '' }}{% if l['nb_pieces'] %} &bull; {{ l['nb_pieces'] }} pieces{% endif %}
+              {% if l['meuble'] %} &bull; Meuble{% endif %}
+              <br>&#128205; {{ l['quartier'] or '' }}{% if l['ville'] %}, {{ l['ville'] }}{% endif %}
+            </div>
+            <div class="logement-prix">{{ l['loyer'] or '&mdash;' }} FCFA<small style="font-size:0.7rem;color:#888;font-weight:400"> /mois</small></div>
+            <div class="logement-actions">
+              <button class="btn btn-gray btn-sm" onclick="voirPhotos({{ l['id'] }})">&#128247; {{ l['nb_photos'] }} photo(s)</button>
+              <button class="btn btn-sm {% if l['disponible'] %}btn-red{% else %}btn-green{% endif %}"
+                onclick="toggleDispo({{ l['id'] }}, {{ l['disponible'] }})">
+                {% if l['disponible'] %}Masquer{% else %}Remettre{% endif %}
+              </button>
+              <button class="btn btn-red btn-sm" onclick="supprimerLogement({{ l['id'] }})">Supprimer</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">Aucun logement publie pour le moment.<br>Cliquez sur "+ Publier un logement" pour en ajouter.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- TAB DEMANDES -->
+  <div id="tab-demandes" class="tab-content">
+    <div class="section">
+      <div class="section-head"><h2>Demandes de logement (locataires)</h2></div>
+      {% if demandes %}
+      <table>
+        <thead><tr><th>Date</th><th>Nom</th><th>Telephone</th><th>Type</th><th>Budget</th><th>Quartier</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for d in demandes %}
+        <tr>
+          <td>{{ d['date_soumission'][:16] }}</td>
+          <td><strong>{{ d['nom'] }}</strong>{% if d['email'] %}<br><small style="color:#aaa">{{ d['email'] }}</small>{% endif %}</td>
+          <td class="tel">{{ d['telephone'] }}</td>
+          <td>{{ d['type_logement'] or '&mdash;' }}</td>
+          <td>{{ d['budget'] or '&mdash;' }}</td>
+          <td>{{ d['quartier'] or '&mdash;' }}</td>
+          <td><span class="badge b-{{ d['statut'] }}">{{ d['statut'] }}</span></td>
+          <td class="actions">
+            {% if d['statut'] != 'traite' %}<button class="btn btn-green btn-sm" onclick="statutDemande({{ d['id'] }},'traite')">Traite</button>{% endif %}
+            <button class="btn btn-red btn-sm" onclick="suppDemande({{ d['id'] }})">Sup.</button>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<div class="empty">Aucune demande.</div>{% endif %}
+    </div>
+  </div>
+
+  <!-- TAB PROPOSITIONS -->
+  <div id="tab-propositions" class="tab-content">
+    <div class="section">
+      <div class="section-head"><h2>Propositions de proprietaires</h2></div>
+      {% if propositions %}
+      <table>
+        <thead><tr><th>Date</th><th>Proprietaire</th><th>Telephone</th><th>Type</th><th>Quartier</th><th>Loyer</th><th>Fichiers</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for p in propositions %}
+        <tr>
+          <td>{{ p['date_soumission'][:16] }}</td>
+          <td><strong>{{ p['nom'] }}</strong></td>
+          <td class="tel">{{ p['telephone'] }}</td>
+          <td>{{ p['type_logement'] or '&mdash;' }}</td>
+          <td>{{ p['quartier'] or '&mdash;' }}</td>
+          <td>{{ p['loyer'] or '&mdash;' }} FCFA</td>
+          <td>{% if p['nb_fichiers'] > 0 %}<a href="/admin/fichiers/{{ p['id'] }}" style="color:#2A5298;font-size:0.82rem">&#128247; {{ p['nb_fichiers'] }}</a>{% else %}&mdash;{% endif %}</td>
+          <td><span class="badge b-{{ p['statut'] }}">{{ p['statut'] }}</span></td>
+          <td class="actions">
+            <button class="btn btn-orange btn-sm" onclick="publierDepuisProposition({{ p['id'] }})">&#128640; Publier</button>
+            <button class="btn btn-green btn-sm" onclick="statutProp({{ p['id'] }},'traite')">Traite</button>
+            <button class="btn btn-red btn-sm" onclick="suppProp({{ p['id'] }})">Sup.</button>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<div class="empty">Aucune proposition.</div>{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVEAU LOGEMENT -->
+<div class="modal-overlay" id="modalLogement">
+  <div class="modal">
+    <h3 id="modalTitre">&#127968; Publier un logement</h3>
+    <input type="hidden" id="modalPropId" value="" />
+    <div class="form-row">
+      <div class="form-group" style="grid-column:1/-1"><label>Titre de l&#39;annonce *</label><input type="text" id="fTitre" placeholder="Ex: Belle villa 4 pieces - Agadez Centre" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Type de logement</label>
+        <select id="fType">
+          <option value="">Selectionner...</option>
+          <option>Studio</option><option>Appartement 2 pieces</option><option>Appartement 3 pieces</option>
+          <option>Villa</option><option>Maison entiere</option><option>Chambre individuelle</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nombre de pieces</label><input type="text" id="fPieces" placeholder="Ex: 3" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Quartier</label><input type="text" id="fQuartier" placeholder="Ex: Abalama" /></div>
+      <div class="form-group"><label>Ville</label><input type="text" id="fVille" placeholder="Ex: Agadez" value="Agadez" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Loyer mensuel (FCFA)</label><input type="text" id="fLoyer" placeholder="Ex: 150000" /></div>
+      <div class="form-group"><label>Surface (m&sup2;)</label><input type="text" id="fSurface" placeholder="Ex: 80" /></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="fDescription" placeholder="Details du logement, equipements, conditions..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Contact bailleur</label><input type="text" id="fContact" placeholder="Nom du proprietaire" /></div>
+      <div class="form-group"><label>Telephone bailleur</label><input type="tel" id="fTelBailleur" placeholder="+227 XX XX XX XX" /></div>
+    </div>
+    <div class="form-group">
+      <div class="checkbox-row"><input type="checkbox" id="fMeuble" /><label for="fMeuble" style="margin:0">Logement meuble</label></div>
+    </div>
+    <div class="form-group">
+      <label>Photos &amp; Videos</label>
+      <div class="upload-zone-admin" onclick="document.getElementById('fFichiers').click()">
+        <div style="font-size:1.5rem;margin-bottom:0.4rem">&#128247;</div>
+        <div style="font-size:0.85rem;color:#888">Cliquez pour ajouter des photos ou videos</div>
+        <input type="file" id="fFichiers" accept="image/*,video/*" multiple style="display:none" onchange="handleModalFiles(this)" />
+      </div>
+      <div class="upload-preview-admin" id="modalPreview"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-orange" onclick="publierLogement()">&#128640; Publier</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tabs
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Modal
+let modalFiles = [];
+function ouvrirModalNouveauLogement(propData) {
+  document.getElementById('fTitre').value = propData ? (propData.type + ' - ' + propData.quartier) : '';
+  document.getElementById('fType').value = propData ? propData.type : '';
+  document.getElementById('fQuartier').value = propData ? propData.quartier : '';
+  document.getElementById('fLoyer').value = propData ? propData.loyer : '';
+  document.getElementById('fDescription').value = propData ? propData.description : '';
+  document.getElementById('fVille').value = 'Agadez';
+  document.getElementById('fPieces').value = '';
+  document.getElementById('fSurface').value = '';
+  document.getElementById('fContact').value = propData ? propData.nom : '';
+  document.getElementById('fTelBailleur').value = propData ? propData.telephone : '';
+  document.getElementById('fMeuble').checked = false;
+  document.getElementById('modalPropId').value = propData ? propData.id : '';
+  document.getElementById('modalTitre').textContent = propData ? '\uD83D\uDE80 Publier depuis proposition' : '\uD83C\uDFE0 Publier un logement';
+  modalFiles = [];
+  renderModalPreviews();
+  document.getElementById('modalLogement').classList.add('open');
+}
+function fermerModal() { document.getElementById('modalLogement').classList.remove('open'); }
+document.getElementById('modalLogement').addEventListener('click', function(e) { if (e.target === this) fermerModal(); });
+
+function handleModalFiles(input) {
+  modalFiles = [...modalFiles, ...Array.from(input.files)].slice(0, 10);
+  renderModalPreviews();
+  input.value = '';
+}
+function removeModalFile(i) { modalFiles.splice(i, 1); renderModalPreviews(); }
+function renderModalPreviews() {
+  const c = document.getElementById('modalPreview');
+  c.innerHTML = '';
+  modalFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'prev-item';
+    if (f.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f);
+      item.appendChild(img);
+    } else {
+      const v = document.createElement('div');
+      v.className = 'vid-prev';
+      v.textContent = '\uD83C\uDFAC';
+      item.appendChild(v);
+    }
+    const btn = document.createElement('button');
+    btn.className = 'rm'; btn.type = 'button';
+    btn.textContent = '\u00D7';
+    btn.onclick = () => removeModalFile(i);
+    item.appendChild(btn);
+    c.appendChild(item);
+  });
+}
+
+async function publierLogement() {
+  const titre = document.getElementById('fTitre').value.trim();
+  if (!titre) { alert('Le titre est obligatoire.'); return; }
+  const fd = new FormData();
+  fd.append('titre', titre);
+  fd.append('type_logement', document.getElementById('fType').value);
+  fd.append('quartier', document.getElementById('fQuartier').value);
+  fd.append('ville', document.getElementById('fVille').value || 'Agadez');
+  fd.append('loyer', document.getElementById('fLoyer').value);
+  fd.append('description', document.getElementById('fDescription').value);
+  fd.append('nb_pieces', document.getElementById('fPieces').value);
+  fd.append('surface', document.getElementById('fSurface').value);
+  fd.append('contact_bailleur', document.getElementById('fContact').value);
+  fd.append('telephone_bailleur', document.getElementById('fTelBailleur').value);
+  fd.append('meuble', document.getElementById('fMeuble').checked ? '1' : '0');
+  fd.append('proposition_id', document.getElementById('modalPropId').value);
+  modalFiles.forEach(f => fd.append('fichiers', f));
+  const btn = document.querySelector('#modalLogement .btn-orange');
+  btn.disabled = true; btn.textContent = 'Publication...';
+  const res = await fetch('/admin/api/logement', { method: 'POST', body: fd });
+  const json = await res.json();
+  if (json.success) { fermerModal(); location.reload(); }
+  else { alert('Erreur : ' + json.message); btn.disabled = false; btn.textContent = '&#128640; Publier'; }
+}
+
+async function publierDepuisProposition(id) {
+  const res = await fetch('/admin/api/proposition/' + id + '/data');
+  const json = await res.json();
+  if (json.success) ouvrirModalNouveauLogement(json.data);
+}
+
+async function toggleDispo(id, actuel) {
+  const val = actuel ? 0 : 1;
+  const res = await fetch('/admin/api/logement/' + id + '/disponible', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({disponible: val}) });
+  if ((await res.json()).success) location.reload();
+}
+
+async function supprimerLogement(id) {
+  if (!confirm('Supprimer ce logement ?')) return;
+  const res = await fetch('/admin/api/logement/' + id, { method: 'DELETE' });
+  if ((await res.json()).success) location.reload();
+}
+
+async function voirPhotos(id) { window.open('/admin/fichiers-logement/' + id, '_blank'); }
+
+async function statutDemande(id, s) {
+  await fetch('/admin/api/demande/' + id + '/statut', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({statut:s}) });
+  location.reload();
+}
+async function suppDemande(id) {
+  if (!confirm('Supprimer ?')) return;
+  await fetch('/admin/api/demande/' + id, { method:'DELETE' });
+  location.reload();
+}
+async function statutProp(id, s) {
+  await fetch('/admin/api/proposition/' + id + '/statut', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({statut:s}) });
+  location.reload();
+}
+async function suppProp(id) {
+  if (!confirm('Supprimer ?')) return;
+  await fetch('/admin/api/proposition/' + id, { method:'DELETE' });
+  location.reload();
+}
+</script></body></html>
