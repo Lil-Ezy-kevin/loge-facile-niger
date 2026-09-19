@@ -25,8 +25,8 @@ class Config:
     # --- WhatsApp Twilio (optionnel) ---
     TWILIO_SID           = os.environ.get('TWILIO_SID', '')
     TWILIO_AUTH_TOKEN    = os.environ.get('TWILIO_AUTH_TOKEN', '')
-    TWILIO_WHATSAPP_FROM = 'whatsapp:+14155238886'
-    TWILIO_WHATSAPP_TO   = os.environ.get('TWILIO_WHATSAPP_TO', 'whatsapp:+22786160620')
+    TWILIO_WHATSAPP_FROM = 'whatsapp:+22797431619'
+    TWILIO_WHATSAPP_TO   = os.environ.get('TWILIO_WHATSAPP_TO', 'whatsapp:+22797431619')
 
     # --- Admin ---
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
