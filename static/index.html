@@ -880,7 +880,7 @@ function openModal(idx) {
   document.getElementById('mChips').innerHTML = chips.map(function(c) { return '<span class="modal-chip">' + c + '</span>'; }).join('');
   document.getElementById('mPrice').innerHTML = l.loyer ? Number(l.loyer).toLocaleString('fr') + ' FCFA <small>/mois</small>' : 'Prix sur demande';
   document.getElementById('mDesc').textContent = l.description || 'Aucune description disponible.';
-  var tel = (l.telephone_bailleur || '+22786160620').replace(/[^0-9]/g, '');
+  var tel = (l.telephone_bailleur || '+22797431619').replace(/[^0-9]/g, '');
   document.getElementById('mCta').innerHTML = '<div><p style="font-size:0.78rem;color:var(--text-lt);margin-bottom:0.15rem">Contact pour visiter</p><strong>' + (l.contact_bailleur || 'Loge Facile Niger') + '</strong></div><a href="https://wa.me/' + tel + '" target="_blank" class="modal-wa">&#128222; WhatsApp</a>';
   document.getElementById('mModal').classList.add('open');
   document.body.style.overflow = 'hidden';
