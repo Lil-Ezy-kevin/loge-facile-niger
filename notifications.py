@@ -52,7 +52,7 @@ def notifier_nouvelle_demande(data):
         </table>
       </div>
       <div style="padding:16px 32px;background:#0D1B3E;text-align:center;">
-        <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin:0;">Loge Facile Niger &bull; +227 86 16 06 20 &bull; logefacile.niger@gmail.com</p>
+        <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin:0;">Loge Facile Niger &bull; +227 97 43 16 19 &bull; logefacile.niger@gmail.com</p>
       </div>
     </div>
     """
@@ -86,7 +86,7 @@ def notifier_nouvelle_proposition(data, fichiers=None):
         <p style="color:#D4600A;font-size:0.85rem;margin:0;">&#9888;&#65039; Connectez-vous au panneau admin pour examiner cette proposition et la publier.</p>
       </div>
       <div style="padding:16px 32px;background:#0D1B3E;text-align:center;">
-        <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin:0;">Loge Facile Niger &bull; +227 86 16 06 20 &bull; logefacile.niger@gmail.com</p>
+        <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin:0;">Loge Facile Niger &bull; +227 97 43 16 19 &bull; logefacile.niger@gmail.com</p>
       </div>
     </div>
     """
