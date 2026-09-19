@@ -50,7 +50,7 @@ Si tu veux les notifications WhatsApp, cree un compte sur https://twilio.com
 ```python
 TWILIO_SID        = 'ACxxxxxxxxxxxxxxxx'
 TWILIO_AUTH_TOKEN = 'xxxxxxxxxxxxxxxx'
-TWILIO_WHATSAPP_TO = 'whatsapp:+22791456259'
+TWILIO_WHATSAPP_TO = 'whatsapp:+22797431619'
 ```
 Si tu ne veux pas Twilio, laisse ces champs vides — les notifications email fonctionneront quand meme.
 
@@ -116,5 +116,5 @@ Pas besoin d'installer MySQL ou PostgreSQL.
 ---
 
 ## Contact & Support
-- WhatsApp : +227 91 45 62 59
+- WhatsApp : +227 97 43 16 19
 - Email    : logefacile.niger@gmail.com
